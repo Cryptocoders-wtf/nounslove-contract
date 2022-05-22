@@ -37,7 +37,7 @@ async function main() {
   const priceSeed = {
     maxPrice:  String(10 ** 18), // 1 ether;
     minPrice:  String(5 * 10 ** 15), //  0.005 ether; = 5 * 10^-3
-    priceDelta:  String(15 ** 15), // 0.015 ether; = 15 * 10^-2
+    priceDelta:  String(15 * 10 ** 15), // 0.015 ether; = 15 * 10^-2
     timeDelta: 60, // 1 minutes; 
     expirationTime: 90 * 60, // 90 minutes;
   };

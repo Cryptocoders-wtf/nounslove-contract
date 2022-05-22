@@ -153,19 +153,19 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         address from = ownerOf(tokenId);
         address to = msg.sender;
         uint256 currentPrice = price();
-        string memory aaa = Strings.toString(currentPrice);
         require(from == address(this), 'Owner is not the contract');
         require(tokenId == (_currentNounId - 1), 'Not latest Noun');
-        // require(msg.value >= currentPrice, 'Must send at least currentPrice'.toSlice().concat(aaa.toSlice()));
-        require(msg.value >= currentPrice, aaa);
+        require(msg.value >= currentPrice, 'Must send at least currentPrice');
         
         buyTransfer(to, tokenId);
+        
         if (_currentNounId % 10 == 0) {
             uint256 devIndex = (_currentNounId / 10) % developpers.length;
             address developper = developpers[devIndex];
             // TODO developpers
             _mintTo(developper, _currentNounId++);
         }
+        emit NounBought(tokenId, to);
         setMintTime();
         return _mintTo(address(this), _currentNounId++);
     }
@@ -192,13 +192,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
             return priceSeed.minPrice;
         }
         return priceSeed.maxPrice - priceDiff;
-        /*
-        // uint256 currentPrice = maxPrice - 3 * priceDelta;
-        if (currentPrice > minPrice) {
-            return currentPrice;
-        }
-        return minPrice;
-        */
     }
     function burnExpireToken() public {
         uint256 timeDiff = block.timestamp - mintTime;

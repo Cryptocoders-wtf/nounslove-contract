@@ -28,6 +28,8 @@ interface INounsToken is IERC721 {
 
     event NoundersDAOUpdated(address noundersDAO);
 
+    event NounBought(uint256 indexed tokenId, address newOwner);
+    
     event MinterUpdated(address minter);
 
     event MinterLocked();
