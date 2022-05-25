@@ -275,6 +275,10 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         return nounId;
     }
 
+    /**
+     * @notice Transfer eth to committee.
+     * @dev Only callable by the Owner.
+     */
     function transfer() external onlyOwner {
         address payable payableTo = payable(committee);
         payableTo.transfer(address(this).balance);
@@ -301,8 +305,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         return priceSeed;
     }
     /**
-     * @notice A distinct Uniform Resource Identifier (URI) for a given asset.
-     * @dev See {IERC721Metadata-tokenURI}.
+     * @notice Get the price of token.
      */
     function tokenPrice(uint256 tokenId) public view returns (uint256) {
         require(_exists(tokenId), 'NounsToken: URI query for nonexistent token');
