@@ -47,9 +47,10 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     // The internal noun ID tracker
     uint256 private _currentNounId;
 
+    // The previous mint time
     uint256 public mintTime;
-    uint256 public testTime;
     
+    // Seed data to calculate price
     struct PriceSeed {
         uint256 maxPrice;
         uint256 minPrice;
@@ -57,8 +58,11 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         uint256 timeDelta;
         uint256 expirationTime;
     }
+
+    // price seed
     PriceSeed public priceSeed;
 
+    // developer address.
     address public developer;
     
     // Mapping from token ID to price
@@ -102,7 +106,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     }
 
     /**
-     * @notice Mint first Noun to the minter,
+     * @notice Mint first Noun to the owner,
      * @dev Call _mintTo with the to address(es).
      */
     function mint() public override onlyOwner returns (uint256) {
@@ -241,9 +245,8 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
 
     /**
      * @notice Set Price Data.
-     * @dev Only callable by the Minter.
+     * @dev Only callable by the Owner.
      */
-
     function setPriceData(PriceSeed memory _priceSeed) external onlyOwner {
         require(_priceSeed.maxPrice > _priceSeed.minPrice, 'Max price must be larger than Min Price');
         priceSeed.maxPrice = _priceSeed.maxPrice;
@@ -269,7 +272,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     
     /**
      * @notice Set developer.
-     * @dev Onlu callable by the Minter.
+     * @dev Only callable by the Owner.
      */
     function setDeveloper(address _developer) external onlyOwner {
         developer = _developer;
