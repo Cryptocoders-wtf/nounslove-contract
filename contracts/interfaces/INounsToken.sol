@@ -30,10 +30,6 @@ interface INounsToken is IERC721 {
 
     event NounBought(uint256 indexed tokenId, address newOwner);
     
-    event MinterUpdated(address minter);
-
-    event MinterLocked();
-
     event MintTimeUpdated(uint256 mintTime);
     
     function mint() external returns (uint256);
@@ -41,10 +37,5 @@ interface INounsToken is IERC721 {
     function burn(uint256 tokenId) external;
 
     function dataURI(uint256 tokenId) external returns (string memory);
-
-    function setMinter(address minter) external;
-
-    function lockMinter() external;
-
 
 }

@@ -34,16 +34,16 @@ async function main() {
 
   // 1 eth = 10**18
   const priceSeed = {
-    maxPrice:  String(10 ** 16), // 0.01 ether;
-    minPrice:  String(5 * 10 ** 13), //  0.00005 ether; = 5 * 10^-3
-    priceDelta:  String(15 * 10 ** 13), // 0.00015 ether; = 15 * 10^-2
+    maxPrice:  String(10 ** 16), // 0.01 ether; = 1 * 10^2
+    minPrice:  String(5 * 10 ** 13), //  0.00005 ether; = 5 * 10^-5
+    priceDelta:  String(15 * 10 ** 13), // 0.00015 ether; = 15 * 10^-5
     timeDelta: 60, // 1 minutes; 
     expirationTime: 90 * 60, // 90 minutes;
   };
   
   // We get the contract to deploy
   const NounsToken = await ethers.getContractFactory("NounsToken");
-  const nounsToken = await NounsToken.deploy(minter, descriptor, seeder, developer, committee, priceSeed, proxy);
+  const nounsToken = await NounsToken.deploy(descriptor, seeder, developer, committee, priceSeed, proxy);
 
   await nounsToken.deployed();
 

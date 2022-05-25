@@ -31,8 +31,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     using Strings for uint256;
-    // An address who has permissions to mint Nouns.
-    address public minter;
 
     // nouns fes committee address.
     address public committee;
@@ -42,9 +40,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
 
     // The Nouns token seeder
     INounsSeeder public seeder;
-
-    // Whether the minter can be updated
-    bool public isMinterLocked;
 
     // The noun seeds
     mapping(uint256 => INounsSeeder.Seed) public seeds;
@@ -72,24 +67,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     // OpenSea's Proxy Registry
     IProxyRegistry public immutable proxyRegistry;
 
-    /**
-     * @notice Require that the minter has not been locked.
-     */
-    modifier whenMinterNotLocked() {
-        require(!isMinterLocked, 'Minter is locked');
-        _;
-    }
-
-    /**
-     * @notice Require that the sender is the minter.
-     */
-    modifier onlyMinter() {
-        require(msg.sender == minter, 'Sender is not the minter');
-        _;
-    }
-
     constructor(
-        address _minter,
         INounsDescriptor _descriptor,
         INounsSeeder _seeder,
         address _developer,
@@ -97,7 +75,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         PriceSeed memory _priceSeed,
         IProxyRegistry _proxyRegistry
     ) ERC721('Nouns love', 'NOUN') {
-        minter = _minter;
         descriptor = _descriptor;
         seeder = _seeder;
         developer = _developer;
@@ -110,7 +87,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         priceSeed.timeDelta = _priceSeed.timeDelta;
         priceSeed.expirationTime = _priceSeed.expirationTime;
 
-        priceMultiple = 1;
+        mint();
     }
 
     /**
@@ -128,9 +105,9 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      * @notice Mint first Noun to the minter,
      * @dev Call _mintTo with the to address(es).
      */
-    function mint() public override onlyMinter returns (uint256) {
+    function mint() public override onlyOwner returns (uint256) {
         require(_currentNounId == 0, 'First mint only'); 
-        _mintTo(minter, _currentNounId++);
+        _mintTo(owner(), _currentNounId++);
         return _mintTo(address(this), _currentNounId++);
     }
     /*
@@ -203,7 +180,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     /**
      * @notice Burn a noun.
      */
-    function burn(uint256 nounId) public override onlyMinter {
+    function burn(uint256 nounId) public override onlyOwner {
         _burn(nounId);
         emit NounBurned(nounId);
     }
@@ -233,16 +210,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     }
 
     /**
-     * @notice Set the token minter.
-     * @dev Only callable by the owner when not locked.
-     */
-    function setMinter(address _minter) external override onlyOwner whenMinterNotLocked {
-        minter = _minter;
-
-        emit MinterUpdated(_minter);
-    }
-
-    /**
      * @notice Set the nouns fes committee.
      * @dev Only callable by the owner.
      */
@@ -250,16 +217,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         committee = _committee;
     }
     
-    /**
-     * @notice Lock the minter.
-     * @dev This cannot be reversed and is only callable by the owner when not locked.
-     */
-    function lockMinter() external override onlyOwner whenMinterNotLocked {
-        isMinterLocked = true;
-
-        emit MinterLocked();
-    }
-
     /**
      * @notice Mint a Noun with `nounId` to the provided `to` address.
      */
@@ -287,7 +244,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      * @dev Only callable by the Minter.
      */
 
-    function setPriceData(PriceSeed memory _priceSeed) external onlyMinter {
+    function setPriceData(PriceSeed memory _priceSeed) external onlyOwner {
         require(_priceSeed.maxPrice > _priceSeed.minPrice, 'Max price must be larger than Min Price');
         priceSeed.maxPrice = _priceSeed.maxPrice;
         priceSeed.minPrice = _priceSeed.minPrice;
@@ -314,7 +271,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      * @notice Set developer.
      * @dev Onlu callable by the Minter.
      */
-    function setDeveloper(address _developer) external onlyMinter {
+    function setDeveloper(address _developer) external onlyOwner {
         developer = _developer;
     }
 
