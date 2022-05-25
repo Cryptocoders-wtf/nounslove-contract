@@ -64,8 +64,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     }
     PriceSeed public priceSeed;
 
-    uint256 public priceMultiple;
-    
     address public developer;
     
     // Mapping from token ID to price
