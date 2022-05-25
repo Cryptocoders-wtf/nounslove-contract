@@ -131,7 +131,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     function mint() public override onlyMinter returns (uint256) {
         require(_currentNounId == 0, 'First mint only'); 
         _mintTo(minter, _currentNounId++);
-        setMintTime();
         return _mintTo(address(this), _currentNounId++);
     }
     /*
@@ -155,7 +154,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
             _mintTo(developer, _currentNounId++);
         }
         emit NounBought(tokenId, to);
-        setMintTime();
         return _mintTo(address(this), _currentNounId++);
     }
     /*
@@ -199,7 +197,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         if (timeDiff > priceSeed.expirationTime) {
             burn(_currentNounId - 1);
         }
-        setMintTime();
         _mintTo(address(this), _currentNounId++);
     }
     
@@ -269,6 +266,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     function _mintTo(address to, uint256 nounId) internal returns (uint256) {
         INounsSeeder.Seed memory seed = seeds[nounId] = seeder.generateSeed(nounId, descriptor);
 
+        setMintTime();
         _mint(owner(), to, nounId);
         emit NounCreated(nounId, seed);
 
