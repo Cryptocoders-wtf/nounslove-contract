@@ -196,7 +196,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     /*
      * @notice anyone can burn a noun after expiration time.
      */
-    function burnExpireToken() public {
+    function burnExpiredToken() public {
         uint256 timeDiff = block.timestamp - mintTime;
         if (timeDiff > priceSeed.expirationTime) {
             burn(_currentNounId - 1);
