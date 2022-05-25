@@ -19,6 +19,7 @@ pragma solidity ^0.8.6;
 
 import { Ownable } from '@openzeppelin/contracts/access/Ownable.sol';
 import { ERC721Checkpointable } from './base/ERC721Checkpointable.sol';
+import { NFTDescriptor } from './libs/NFTDescriptor.sol';
 import { INounsDescriptor } from './interfaces/INounsDescriptor.sol';
 import { INounsSeeder } from './interfaces/INounsSeeder.sol';
 import { INounsToken } from './interfaces/INounsToken.sol';
@@ -29,9 +30,13 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 
 contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
-    // An address who has permissions to mint Nouns
+    using Strings for uint256;
+    // An address who has permissions to mint Nouns.
     address public minter;
 
+    // nouns fes committee address.
+    address public committee;
+    
     // The Nouns token URI descriptor
     INounsDescriptor public descriptor;
 
@@ -40,12 +45,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
 
     // Whether the minter can be updated
     bool public isMinterLocked;
-
-    // Whether the descriptor can be updated
-    bool public isDescriptorLocked;
-
-    // Whether the seeder can be updated
-    bool public isSeederLocked;
 
     // The noun seeds
     mapping(uint256 => INounsSeeder.Seed) public seeds;
@@ -64,8 +63,13 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         uint256 expirationTime;
     }
     PriceSeed public priceSeed;
+
+    uint256 public priceMultiple;
     
-    address[] public developpers;
+    address public developper;
+    
+    // Mapping from token ID to price
+    mapping(uint256 => uint256) private prices;
     
     // OpenSea's Proxy Registry
     IProxyRegistry public immutable proxyRegistry;
@@ -75,22 +79,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      */
     modifier whenMinterNotLocked() {
         require(!isMinterLocked, 'Minter is locked');
-        _;
-    }
-
-    /**
-     * @notice Require that the descriptor has not been locked.
-     */
-    modifier whenDescriptorNotLocked() {
-        require(!isDescriptorLocked, 'Descriptor is locked');
-        _;
-    }
-
-    /**
-     * @notice Require that the seeder has not been locked.
-     */
-    modifier whenSeederNotLocked() {
-        require(!isSeederLocked, 'Seeder is locked');
         _;
     }
 
@@ -106,14 +94,14 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         address _minter,
         INounsDescriptor _descriptor,
         INounsSeeder _seeder,
-        address[] memory _developpers,
+        address _developper,
         PriceSeed memory _priceSeed,
         IProxyRegistry _proxyRegistry
     ) ERC721('Nouns love', 'NOUN') {
         minter = _minter;
         descriptor = _descriptor;
         seeder = _seeder;
-        developpers = _developpers;
+        developper = _developper;
         proxyRegistry = _proxyRegistry;
 
         priceSeed.maxPrice = _priceSeed.maxPrice;
@@ -121,6 +109,8 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         priceSeed.priceDelta = _priceSeed.priceDelta;
         priceSeed.timeDelta = _priceSeed.timeDelta;
         priceSeed.expirationTime = _priceSeed.expirationTime;
+
+        priceMultiple = 1;
     }
 
     /**
@@ -135,9 +125,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     }
 
     /**
-     * @notice Mint a Noun to the minter, along with a possible nounders reward
-     * Noun. Nounders reward Nouns are minted every 10 Nouns, starting at 0,
-     * until 183 nounder Nouns have been minted (5 years w/ 24 hour auctions).
+     * @notice Mint first Noun to the minter,
      * @dev Call _mintTo with the to address(es).
      */
     function mint() public override onlyMinter returns (uint256) {
@@ -147,7 +135,10 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         return _mintTo(address(this), _currentNounId++);
     }
     /*
-      @ 
+     * @notice
+     * Buy noun and mint new noun along with a possible developer reward Noun.
+     * Developer reward Nouns are minted every 10 Nouns.
+     * @dev Call _mintTo with the to address(es).
      */
     function buy(uint256 tokenId) external payable returns (uint256) {
         address from = ownerOf(tokenId);
@@ -156,33 +147,40 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         require(from == address(this), 'Owner is not the contract');
         require(tokenId == (_currentNounId - 1), 'Not latest Noun');
         require(msg.value >= currentPrice, 'Must send at least currentPrice');
-        
+
+        prices[tokenId] = msg.value;
         buyTransfer(to, tokenId);
         
         if (_currentNounId % 10 == 0) {
-            uint256 devIndex = (_currentNounId / 10) % developpers.length;
-            address developper = developpers[devIndex];
-            // TODO developpers
             _mintTo(developper, _currentNounId++);
         }
         emit NounBought(tokenId, to);
         setMintTime();
         return _mintTo(address(this), _currentNounId++);
     }
-    function getCurrentToken() public view returns (uint256) {                  
-        return _currentNounId;
-    }
-    function getMintTime() public view returns (uint256) {                  
-        return mintTime;
-    }
+    /*
+     * @notice set previous mint time.
+     */
     function setMintTime() private {
         mintTime = block.timestamp;
         emit MintTimeUpdated(mintTime);
     }
     /*
-     * maxPrice - (time diff / time step) * price step
+     * @notice get next tokenId.
      */
-    function price() public view returns (uint256) {
+    function getCurrentToken() external view returns (uint256) {                  
+        return _currentNounId;
+    }
+    /*
+     * @notice get previous mint time.
+     */
+    function getMintTime() external view returns (uint256) {                  
+        return mintTime;
+    }
+    /*
+     * @notice maxPrice - (time diff / time step) * price step
+     */
+    function price() private view returns (uint256) {
         uint256 timeDiff = block.timestamp - mintTime;
         if (timeDiff < priceSeed.timeDelta ) {
             return priceSeed.maxPrice;
@@ -193,6 +191,9 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         }
         return priceSeed.maxPrice - priceDiff;
     }
+    /*
+     * @notice anyone can burn a noun after expiration time.
+     */
     function burnExpireToken() public {
         uint256 timeDiff = block.timestamp - mintTime;
         if (timeDiff > priceSeed.expirationTime) {
@@ -225,7 +226,13 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      */
     function dataURI(uint256 tokenId) public view override returns (string memory) {
         require(_exists(tokenId), 'NounsToken: URI query for nonexistent token');
-        return descriptor.dataURI(tokenId, seeds[tokenId]);
+
+        string memory nounId = tokenId.toString();
+        string memory name = string(abi.encodePacked('Noun lover ', nounId));
+        string memory description = string(abi.encodePacked('Noun lover ', nounId, ' is a fun of the Nouns DAO and Nouns Art Festival'));
+
+        return descriptor.genericDataURI(name, description, seeds[tokenId]);
+        // return descriptor.dataURI(tokenId, seeds[tokenId]);
     }
 
     /**
@@ -239,6 +246,14 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     }
 
     /**
+     * @notice Set the nouns fes committee.
+     * @dev Only callable by the owner.
+     */
+    function setCommittee(address _committee) external onlyOwner {
+        committee = _committee;
+    }
+    
+    /**
      * @notice Lock the minter.
      * @dev This cannot be reversed and is only callable by the owner when not locked.
      */
@@ -246,46 +261,6 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         isMinterLocked = true;
 
         emit MinterLocked();
-    }
-
-    /**
-     * @notice Set the token URI descriptor.
-     * @dev Only callable by the owner when not locked.
-     */
-    function setDescriptor(INounsDescriptor _descriptor) external override onlyOwner whenDescriptorNotLocked {
-        descriptor = _descriptor;
-
-        emit DescriptorUpdated(_descriptor);
-    }
-
-    /**
-     * @notice Lock the descriptor.
-     * @dev This cannot be reversed and is only callable by the owner when not locked.
-     */
-    function lockDescriptor() external override onlyOwner whenDescriptorNotLocked {
-        isDescriptorLocked = true;
-
-        emit DescriptorLocked();
-    }
-
-    /**
-     * @notice Set the token seeder.
-     * @dev Only callable by the owner when not locked.
-     */
-    function setSeeder(INounsSeeder _seeder) external override onlyOwner whenSeederNotLocked {
-        seeder = _seeder;
-
-        emit SeederUpdated(_seeder);
-    }
-
-    /**
-     * @notice Lock the seeder.
-     * @dev This cannot be reversed and is only callable by the owner when not locked.
-     */
-    function lockSeeder() external override onlyOwner whenSeederNotLocked {
-        isSeederLocked = true;
-
-        emit SeederLocked();
     }
 
     /**
@@ -301,28 +276,45 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     }
 
     function transfer() external onlyOwner {
-        address payable payableTo = payable(minter);
+        address payable payableTo = payable(committee);
         payableTo.transfer(address(this).balance);
     }
 
     /**
-     * @notice Set the token minter.
-     * @dev Only callable by the owner when not locked.
+     * @notice Set Price Data.
+     * @dev Only callable by the Minter.
      */
 
-    function setPriceData(PriceSeed memory _priceSeed) external onlyOwner {
+    function setPriceData(PriceSeed memory _priceSeed) external onlyMinter {
+        require(_priceSeed.maxPrice > _priceSeed.minPrice, 'Max price must be larger than Min Price');
         priceSeed.maxPrice = _priceSeed.maxPrice;
         priceSeed.minPrice = _priceSeed.minPrice;
         priceSeed.priceDelta = _priceSeed.priceDelta;
         priceSeed.timeDelta = _priceSeed.timeDelta;
         priceSeed.expirationTime = _priceSeed.expirationTime;
     }
+
+    /**
+     * @notice Get Price Data. 
+     */
     function getPriceData() public view returns (PriceSeed memory) {
         return priceSeed;
     }
-
-    
-    function addDevelopper(address _developper) external onlyOwner {
-        developpers.push(_developper);
+    /**
+     * @notice A distinct Uniform Resource Identifier (URI) for a given asset.
+     * @dev See {IERC721Metadata-tokenURI}.
+     */
+    function tokenPrice(uint256 tokenId) public view returns (uint256) {
+        require(_exists(tokenId), 'NounsToken: URI query for nonexistent token');
+        return prices[tokenId];
     }
+    
+    /**
+     * @notice Set developper.
+     * @dev Onlu callable by the Minter.
+     */
+    function setDevelopper(address _developper) external onlyMinter {
+        developper = _developper;
+    }
+
 }

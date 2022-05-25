@@ -34,14 +34,6 @@ interface INounsToken is IERC721 {
 
     event MinterLocked();
 
-    event DescriptorUpdated(INounsDescriptor descriptor);
-
-    event DescriptorLocked();
-
-    event SeederUpdated(INounsSeeder seeder);
-
-    event SeederLocked();
-
     event MintTimeUpdated(uint256 mintTime);
     
     function mint() external returns (uint256);
@@ -54,11 +46,5 @@ interface INounsToken is IERC721 {
 
     function lockMinter() external;
 
-    function setDescriptor(INounsDescriptor descriptor) external;
 
-    function lockDescriptor() external;
-
-    function setSeeder(INounsSeeder seeder) external;
-
-    function lockSeeder() external;
 }
