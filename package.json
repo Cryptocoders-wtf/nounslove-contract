@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
-    "agent-base": "^6.0.2"
+    "agent-base": "^6.0.2",
+    "base64-sol": "^1.1.0"
   }
 }

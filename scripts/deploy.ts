@@ -27,24 +27,21 @@ async function main() {
   const seeder = "0xcc8a0fb5ab3c7132c1b2a0109142fb112c4ce515";
   const proxy = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
   
-  const developpers = [
-    "0x818Fb9d440968dB9fCB06EEF53C7734Ad70f6F0e", // ai
-    "0x4F1CA5Ac1ab5e119b2C8F015cDC53e618ae9559a", // art fes
-  ];
+  const developper = "0x818Fb9d440968dB9fCB06EEF53C7734Ad70f6F0e"; // ai
   // await deployer.deploy(NFT, minter, descriptor, seeder, developpers, proxy);
 
   // 1 eth = 10**18
   const priceSeed = {
-    maxPrice:  String(10 ** 18), // 1 ether;
-    minPrice:  String(5 * 10 ** 15), //  0.005 ether; = 5 * 10^-3
-    priceDelta:  String(15 * 10 ** 15), // 0.015 ether; = 15 * 10^-2
+    maxPrice:  String(10 ** 16), // 0.01 ether;
+    minPrice:  String(5 * 10 ** 13), //  0.00005 ether; = 5 * 10^-3
+    priceDelta:  String(15 * 10 ** 13), // 0.00015 ether; = 15 * 10^-2
     timeDelta: 60, // 1 minutes; 
     expirationTime: 90 * 60, // 90 minutes;
   };
   
   // We get the contract to deploy
   const NounsToken = await ethers.getContractFactory("NounsToken");
-  const nounsToken = await NounsToken.deploy(minter, descriptor, seeder, developpers, priceSeed, proxy);
+  const nounsToken = await NounsToken.deploy(minter, descriptor, seeder, developper, priceSeed, proxy);
 
   await nounsToken.deployed();
 
