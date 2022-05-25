@@ -27,8 +27,10 @@ async function main() {
   const seeder = "0xcc8a0fb5ab3c7132c1b2a0109142fb112c4ce515";
   const proxy = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
   
-  const developper = "0x818Fb9d440968dB9fCB06EEF53C7734Ad70f6F0e"; // ai
-  // await deployer.deploy(NFT, minter, descriptor, seeder, developpers, proxy);
+  const developer = "0x818Fb9d440968dB9fCB06EEF53C7734Ad70f6F0e"; // ai
+  const committee = "0x4E4cD175f812f1Ba784a69C1f8AC8dAa52AD7e2B";
+  
+  // await deployer.deploy(NFT, minter, descriptor, seeder, developers, proxy);
 
   // 1 eth = 10**18
   const priceSeed = {
@@ -41,7 +43,7 @@ async function main() {
   
   // We get the contract to deploy
   const NounsToken = await ethers.getContractFactory("NounsToken");
-  const nounsToken = await NounsToken.deploy(minter, descriptor, seeder, developper, priceSeed, proxy);
+  const nounsToken = await NounsToken.deploy(minter, descriptor, seeder, developer, committee, priceSeed, proxy);
 
   await nounsToken.deployed();
 

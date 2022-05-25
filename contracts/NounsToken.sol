@@ -66,7 +66,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
 
     uint256 public priceMultiple;
     
-    address public developper;
+    address public developer;
     
     // Mapping from token ID to price
     mapping(uint256 => uint256) private prices;
@@ -94,14 +94,16 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         address _minter,
         INounsDescriptor _descriptor,
         INounsSeeder _seeder,
-        address _developper,
+        address _developer,
+        address _committee,
         PriceSeed memory _priceSeed,
         IProxyRegistry _proxyRegistry
     ) ERC721('Nouns love', 'NOUN') {
         minter = _minter;
         descriptor = _descriptor;
         seeder = _seeder;
-        developper = _developper;
+        developer = _developer;
+        committee = _committee;
         proxyRegistry = _proxyRegistry;
 
         priceSeed.maxPrice = _priceSeed.maxPrice;
@@ -152,7 +154,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         buyTransfer(to, tokenId);
         
         if (_currentNounId % 10 == 0) {
-            _mintTo(developper, _currentNounId++);
+            _mintTo(developer, _currentNounId++);
         }
         emit NounBought(tokenId, to);
         setMintTime();
@@ -313,11 +315,11 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     }
     
     /**
-     * @notice Set developper.
+     * @notice Set developer.
      * @dev Onlu callable by the Minter.
      */
-    function setDevelopper(address _developper) external onlyMinter {
-        developper = _developper;
+    function setDeveloper(address _developer) external onlyMinter {
+        developer = _developer;
     }
 
 }
