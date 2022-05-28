@@ -185,6 +185,10 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      * @notice Burn a noun.
      */
     function burn(uint256 nounId) public override onlyOwner {
+        require(_exists(nounId), 'NounsToken: URI query for nonexistent token');
+        if (_currentNounId - 1 == nounId) {
+            _mintTo(address(this), _currentNounId++);
+        }
         _burn(nounId);
         emit NounBurned(nounId);
     }
