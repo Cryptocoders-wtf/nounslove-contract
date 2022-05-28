@@ -195,7 +195,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      */
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(_exists(tokenId), 'NounsToken: URI query for nonexistent token');
-        return descriptor.tokenURI(tokenId, seeds[tokenId]);
+        return dataURI(tokenId);
     }
 
     /**
