@@ -112,6 +112,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     function mint() public override onlyOwner returns (uint256) {
         require(_currentNounId == 0, 'First mint only'); 
         _mintTo(owner(), _currentNounId++);
+        setMintTime();
         return _mintTo(address(this), _currentNounId++);
     }
     /*
@@ -131,11 +132,8 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         prices[tokenId] = msg.value;
         buyTransfer(to, tokenId);
         
-        if (_currentNounId % 10 == 0) {
-            _mintTo(developer, _currentNounId++);
-        }
         emit NounBought(tokenId, to);
-        return _mintTo(address(this), _currentNounId++);
+        return _mintNext(address(this));
     }
     /*
      * @notice set previous mint time.
@@ -178,7 +176,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
         if (timeDiff > priceSeed.expirationTime) {
             burn(_currentNounId - 1);
         }
-        _mintTo(address(this), _currentNounId++);
+        _mintNext(address(this));
     }
     
     /**
@@ -187,7 +185,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     function burn(uint256 nounId) public override onlyOwner {
         require(_exists(nounId), 'NounsToken: URI query for nonexistent token');
         if (_currentNounId - 1 == nounId) {
-            _mintTo(address(this), _currentNounId++);
+            _mintNext(address(this));
         }
         _burn(nounId);
         emit NounBurned(nounId);
@@ -224,14 +222,19 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
     function setCommittee(address _committee) external onlyOwner {
         committee = _committee;
     }
-    
+    function _mintNext(address to) internal returns (uint256) {
+        if (_currentNounId % 10 == 0) {
+            _mintTo(developer, _currentNounId++);
+        }
+        setMintTime();
+        return _mintTo(to, _currentNounId++);
+    }
     /**
      * @notice Mint a Noun with `nounId` to the provided `to` address.
      */
     function _mintTo(address to, uint256 nounId) internal returns (uint256) {
         INounsSeeder.Seed memory seed = seeds[nounId] = seeder.generateSeed(nounId, descriptor);
 
-        setMintTime();
         _mint(owner(), to, nounId);
         emit NounCreated(nounId, seed);
 
