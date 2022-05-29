@@ -22,22 +22,21 @@ async function main() {
   await greeter.deployed();
   */
 
-  const minter = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
-  const descriptor = "0x0cfdb3ba1694c2bb2cfacb0339ad7b1ae5932b63";
-  const seeder = "0xcc8a0fb5ab3c7132c1b2a0109142fb112c4ce515";
+  const minter = "0x72B6ac6B5206A3216f8165191b46BA1da4C575BD";
+  const descriptor = "0x719f026d5d47b61ae4dde7f55e8acce148ef3af5";
+  const seeder = "0x5bcc91c44bffa15c9b804a5fd30174e8da296a4b";
+  const proxy = "0xf57b2c51ded3a29e6891aba85459d600256cf317";
 
-  const proxy = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
-  
   const developer = "0x818Fb9d440968dB9fCB06EEF53C7734Ad70f6F0e"; // ai
   const committee = "0x4E4cD175f812f1Ba784a69C1f8AC8dAa52AD7e2B";
-  
+
   // await deployer.deploy(NFT, minter, descriptor, seeder, developers, proxy);
 
   // 1 eth = 10**18
   const priceSeed = {
-    maxPrice:  String(10 ** 16), // 0.01 ether; = 1 * 10^2
-    minPrice:  String(5 * 10 ** 13), //  0.00005 ether; = 5 * 10^-5
-    priceDelta:  String(15 * 10 ** 13), // 0.00015 ether; = 15 * 10^-5
+    maxPrice:  String(10 ** 16), // 0.01 ether;
+    minPrice:  String(5 * 10 ** 13), //  0.00005 ether; = 5 * 10^-3
+    priceDelta:  String(15 * 10 ** 13), // 0.00015 ether; = 15 * 10^-2
     timeDelta: 60, // 1 minutes; 
     expirationTime: 90 * 60, // 90 minutes;
   };
