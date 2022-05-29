@@ -1,3 +1,27 @@
+# Nouns love
+
+
+## for rinkeby
+
+### setup .env for rinkeby
+
+```
+INFURA_API_URL = "https://rinkeby.infura.io/v3/xxxxx"
+MNEMONIC = "hoge hoge hoge"
+NETWORKID = "4"
+```
+### deploy to rinkeby
+
+npx hardhat --network infura run scripts/deploy-infura.ts 
+
+## deploy to local
+
+```
+npx hardhat --network localhost run scripts/deploy.ts 
+```
+
+
+
 # Advanced Sample Hardhat Project
 
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
