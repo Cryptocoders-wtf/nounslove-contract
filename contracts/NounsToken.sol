@@ -19,7 +19,6 @@ pragma solidity ^0.8.6;
 
 import { Ownable } from '@openzeppelin/contracts/access/Ownable.sol';
 import { ERC721Checkpointable } from './base/ERC721Checkpointable.sol';
-import { NFTDescriptor } from './libs/NFTDescriptor.sol';
 import { INounsDescriptor } from './interfaces/INounsDescriptor.sol';
 import { INounsSeeder } from './interfaces/INounsSeeder.sol';
 import { INounsToken } from './interfaces/INounsToken.sol';
