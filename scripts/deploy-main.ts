@@ -27,7 +27,7 @@ async function main() {
   const seeder = "0xcc8a0fb5ab3c7132c1b2a0109142fb112c4ce515";
   const proxy = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
   
-  const developper = "0x818Fb9d440968dB9fCB06EEF53C7734Ad70f6F0e"; // ai
+  const developper = "0x4e357ffB3ea723aCC30530eddde89c6Dbb2Db74e"; // ai
   const committee = "0x4E4cD175f812f1Ba784a69C1f8AC8dAa52AD7e2B";
   // await deployer.deploy(NFT, minter, descriptor, seeder, developpers, proxy);
 
