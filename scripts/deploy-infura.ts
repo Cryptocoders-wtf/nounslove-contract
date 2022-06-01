@@ -40,7 +40,7 @@ async function main() {
   }
   console.log("deploying....");
   const minter = "0x72B6ac6B5206A3216f8165191b46BA1da4C575BD";
-  const descriptor = "0x719f026d5d47b61ae4dde7f55e8acce148ef3af5";
+  const descriptor = "0x292c84894c1B86140A784eec99711d6007005f21";
   const seeder = "0x5bcc91c44bffa15c9b804a5fd30174e8da296a4b";
   const proxy = "0xf57b2c51ded3a29e6891aba85459d600256cf317";
     
