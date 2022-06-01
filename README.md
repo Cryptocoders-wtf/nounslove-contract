@@ -1,18 +1,43 @@
 # Nouns love
 
 
-## for rinkeby
+## Setup your wallet
 
 ### setup .env for rinkeby
 
+#### Web3 Provider
+
+Get Api key from Web3 Provider and set API KEY
+
 ```
-INFURA_API_URL = "https://rinkeby.infura.io/v3/xxxxx"
+INFURA_API_KEY = "xxxxx"
+```
+
+or
+
+```
+ALCHEMY_API_KEY = "xxxx"
+```
+
+#### Your Account
+
+Set your account
+
+
+```
 MNEMONIC = "hoge hoge hoge"
-NETWORKID = "4"
+ACCOUNT_INITIAL_INDEX = 2
 ```
+
+or 
+
+```
+PRIVATE_KEY= "hogehoge"
+```
+
 ### deploy to rinkeby
 
-npx hardhat --network infura run scripts/deploy-infura.ts 
+npx hardhat --network rinkeby run scripts/deploy-infura.ts 
 
 ## deploy to local
 

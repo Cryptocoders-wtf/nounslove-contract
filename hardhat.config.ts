@@ -22,6 +22,18 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
+const getUrl = () => {
+  return process.env.INFURA_API_KEY ?
+    "https://rinkeby.infura.io/v3/" + process.env.INFURA_API_KEY : 
+    "https://eth-rinkeby.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY
+};
+const getAccount = () => {
+  return process.env.MNEMONIC ? {
+    initialIndex: process.env.ACCOUNT_INITIAL_INDEX ? Number(process.env.ACCOUNT_INITIAL_INDEX) : 0,
+    mnemonic: process.env.MNEMONIC,
+  } : (process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [])
+};
+
 const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.6",
@@ -41,18 +53,9 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    infura: {
-      chainId: 4,
-      url: process.env.INFURA_API_URL,
-      accounts: {
-        initialIndex: 2,
-        mnemonic: process.env.MNEMONIC,
-      }
-    },
     rinkeby: {
-      url: "https://eth-rinkeby.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      url: getUrl(),
+      accounts: getAccount(),
     },
     mainnet: {
       url: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
