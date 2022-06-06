@@ -1,11 +1,11 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const nounsToken = "0xa722bdA6968F50778B973Ae2701e90200C564B49";
+  const nounsToken = "0xb1B25Eeb1026cB947b3f65a5cc123FC28B13EEe6";
   const priceSeed = {
-    maxPrice:  String(10 ** 18), // 1 ether;
-    minPrice:  String(5 * 10 ** 15), //  0.005 ether; = 5 * 10^-3
-    priceDelta:  String(15 * 10 ** 15), // 0.015 ether; = 15 * 10^-2
+    maxPrice:    String(3 * 10 ** 18),  // 3 ether;
+    minPrice:    String(25 * 10 ** 15), // 0.025 ether; = 25 * 10^-3
+    priceDelta:  String(50 * 10 ** 15), // 0.050 ether; = 50 * 10^-3
     timeDelta: 60, // 1 minutes; 
     expirationTime: 90 * 60, // 90 minutes;
   };
